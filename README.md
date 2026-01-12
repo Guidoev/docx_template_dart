@@ -148,3 +148,9 @@ DocxTemplate.generate takes two additional parameters:
 2) imagePolicy
 Where ImagePolicy.remove - deletes the image if the ImageContent object is not provided
 ImagePolicy.save - leaves the original images from the template if the ImageContent object is not specified
+
+# About this fork:
+- Added parameter ```cellColor``` in TextContent class and implemented custom methods to allow cell coloring if the specified text is contained within a table cell.
+- Added parameters ```widthPx``` and ```heightPx``` in ImgContent class and implemented custom methods to allow image resizing.
+
+Although right now I've implemented only two attributes (that's what I need right now), there is a huge potential for customization.
