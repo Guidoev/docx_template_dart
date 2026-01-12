@@ -53,7 +53,8 @@ class PlainContent extends Content {
 
 class TextContent extends Content {
   late String text;
-  TextContent(String key, dynamic text) : super(key, {}) {
+  String? cellColor;
+  TextContent(String key, dynamic text, {this.cellColor}) : super(key, {}) {
     if (text is String) {
       this.text = text;
     } else {
@@ -97,7 +98,9 @@ class RowContent extends Content {
 
 class ImageContent extends Content {
   List<int>? img;
+  final int? widthPx;
+  final int? heightPx;
   bool removeFromTemplate = false;
   String? filename;
-  ImageContent(String key, this.img) : super(key, {});
+  ImageContent(String key, this.img, {this.heightPx, this.widthPx}) : super(key, {});
 }

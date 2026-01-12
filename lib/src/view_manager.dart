@@ -26,32 +26,25 @@ class ViewManager {
   int get sdtId => _sdtId++;
 
   final Queue<View> _viewStack = Queue();
-  ViewManager._(this.root, this.numbering, this.docxManager, this.tagPolicy,
-      this.imagePolicy);
+  ViewManager._(this.root, this.numbering, this.docxManager, this.tagPolicy, this.imagePolicy);
 
   factory ViewManager.attach(DocxManager docxMan,
-      {TagPolicy tagPolicy = TagPolicy.saveText,
-      ImagePolicy imgPolicy = ImagePolicy.save}) {
-    final root =
-        View(XmlName('root'), const [], const [], false, '', null, [], null);
+      {TagPolicy tagPolicy = TagPolicy.saveText, ImagePolicy imgPolicy = ImagePolicy.save}) {
+    final root = View(XmlName('root'), const [], const [], false, '', null, [], null);
     final numbering = Numbering.from(docxMan);
 
-    ViewManager vm =
-        ViewManager._(root, numbering, docxMan, tagPolicy, imgPolicy);
-    final xmlEntry =
-        docxMan.getEntry(() => DocxXmlEntry(), 'word/document.xml')!;
+    ViewManager vm = ViewManager._(root, numbering, docxMan, tagPolicy, imgPolicy);
+    final xmlEntry = docxMan.getEntry(() => DocxXmlEntry(), 'word/document.xml')!;
     vm._init(xmlEntry.doc!.rootElement, root);
     docxMan.arch.forEach((element) {
       if (element.name.contains("header") && !element.name.contains(".rels")) {
-        final header = docxMan.getEntry(
-            () => DocxXmlEntry(), 'word/${element.name.split('/').last}')!;
+        final header = docxMan.getEntry(() => DocxXmlEntry(), 'word/${element.name.split('/').last}')!;
         vm._init(header.doc!.rootElement, root);
       }
     });
     docxMan.arch.forEach((element) {
       if (element.name.contains("footer") && !element.name.contains(".rels")) {
-        final header = docxMan.getEntry(
-            () => DocxXmlEntry(), 'word/${element.name.split('/').last}')!;
+        final header = docxMan.getEntry(() => DocxXmlEntry(), 'word/${element.name.split('/').last}')!;
         vm._init(header.doc!.rootElement, root);
       }
     });
@@ -96,28 +89,22 @@ class ViewManager {
 
       switch (sdtView.tag) {
         case "table":
-          v = RowView(XmlName("table"), [], sdtChilds, false, sdtView.name,
-              sdtView, [], parent);
+          v = RowView(XmlName("table"), [], sdtChilds, false, sdtView.name, sdtView, [], parent);
           break;
         case "plain":
-          v = PlainView(XmlName("plain"), [], sdtChilds, false, sdtView.name,
-              sdtView, [], parent);
+          v = PlainView(XmlName("plain"), [], sdtChilds, false, sdtView.name, sdtView, [], parent);
           break;
         case "text":
-          v = TextView(XmlName("text"), [], sdtChilds, false, sdtView.name,
-              sdtView, [], parent);
+          v = TextView(XmlName("text"), [], sdtChilds, false, sdtView.name, sdtView, [], parent);
           break;
         case "list":
-          v = ListView(XmlName("list"), [], sdtChilds, false, sdtView.name,
-              sdtView, [], parent);
+          v = ListView(XmlName("list"), [], sdtChilds, false, sdtView.name, sdtView, [], parent);
           break;
         case "img":
-          v = ImgView(XmlName("img"), [], sdtChilds, false, sdtView.name,
-              sdtView, [], parent);
+          v = ImgView(XmlName("img"), [], sdtChilds, false, sdtView.name, sdtView, [], parent);
           break;
         case "link":
-          v = TextView(XmlName("link"), [], sdtChilds, false, sdtView.name,
-              sdtView, [], parent);
+          v = TextView(XmlName("link"), [], sdtChilds, false, sdtView.name, sdtView, [], parent);
           break;
       }
 
@@ -139,8 +126,7 @@ class ViewManager {
     return v;
   }
 
-  void replaceWithAll(XmlElement elem, List<XmlElement> to, bool clearParents,
-      {SdtView? insertBetween}) {
+  void replaceWithAll(XmlElement elem, List<XmlElement> to, bool clearParents, {SdtView? insertBetween}) {
     if (clearParents) {
       for (XmlElement e in to) {
         if (e.parent != null) {
@@ -195,8 +181,7 @@ class ViewManager {
     SdtView? insertV;
     switch (tagPolicy) {
       case TagPolicy.saveNullified:
-        if ((c != null && !c.containsKey(v.tag) && c.key != v.tag) ||
-            c == null) {
+        if ((c != null && !c.containsKey(v.tag) && c.key != v.tag) || c == null) {
           insertV = v.sdtView;
         }
         break;
@@ -211,5 +196,15 @@ class ViewManager {
     replaceWithAll(v, produced, true, insertBetween: insertV);
     _viewStack.removeFirst();
     return produced;
+  }
+
+  XmlElement? findAncestorTc(XmlNode? node) {
+    while (node != null) {
+      if (node is XmlElement && node.name.local == 'tc') {
+        return node;
+      }
+      node = node.parent;
+    }
+    return null;
   }
 }
