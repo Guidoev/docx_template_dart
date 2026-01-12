@@ -336,57 +336,59 @@ class ImgView extends View<ImageContent?> {
   @override
   List<XmlElement> produce(ViewManager vm, ImageContent? c) {
     List<XmlElement> l = [];
+    // Copia il nodo XML del template
     XmlElement copy = XmlCopyVisitor().visitElement(this) as View;
     l = List.from(copy.children);
-    if (c != null) {
-      final pr = copy.descendants.firstWhereOrNull((e) => e is XmlElement && e.name.local == 'blip');
-      if (pr != null) {
-        final idAttr = pr.getAttribute('r:embed');
 
+    if (c != null) {
+      // Trova il blip nel template
+      final blip = copy.descendants.firstWhereOrNull((e) => e is XmlElement && e.name.local == 'blip');
+
+      if (blip != null) {
+        final idAttr = blip.getAttribute('r:embed');
+
+        // Prendi tutti i file rels
         final listDocRelEntry = <DocxRelsEntry?>[
           vm.docxManager.getEntry(() => DocxRelsEntry(), 'word/_rels/document.xml.rels'),
           ...vm.docxManager.arch.map((file) {
             if (file.name.contains("header") && file.name.contains(".rels")) {
               return vm.docxManager.getEntry(() => DocxRelsEntry(), 'word/_rels/${file.name.split('/').last}');
             }
-          }).where((element) => element != null),
+          }).where((e) => e != null),
           ...vm.docxManager.arch.map((file) {
             if (file.name.contains("footer") && file.name.contains(".rels")) {
               return vm.docxManager.getEntry(() => DocxRelsEntry(), 'word/_rels/${file.name.split('/').last}');
             }
-          }).where((element) => element != null),
+          }).where((e) => e != null),
         ];
 
         listDocRelEntry.forEach((relsEntry) {
           if (idAttr != null && relsEntry != null) {
             final rel = relsEntry.getRel(idAttr);
             if (rel != null) {
-              final base = path.basename(rel.target);
-              final ext = path.extension(base);
-              final imageId = relsEntry.nextImageId();
-
-              rel.target = path.join(path.dirname(rel.target), 'image$imageId$ext');
-              final imagePath = 'word/${rel.target}';
-              final relId = relsEntry.nextId();
-              pr.setAttribute('r:embed', relId);
-              relsEntry.add(relId, rel);
-
+              // Sovrascrivi il file binario dell'immagine
+              final imagePath = 'word/${rel.target.replaceAll("\\", "/")}';
               vm.docxManager.add(imagePath, DocxBinEntry(c.img));
+              print("lo ha modificato");
+
+              // Mantieni rId e target originale
+              blip.setAttribute('r:embed', idAttr);
             }
           }
         });
-
-        //code injection for changing image size
-        if (c.widthPx != null && c.heightPx != null) {
-          _applyImageSize(copy, c);
-        }
+      }
+      //code injection for changing image size
+      if (c.widthPx != null && c.heightPx != null) {
+        _applyImageSize(copy, c);
       }
     } else if (vm.imagePolicy == ImagePolicy.remove) {
+      // Se policy è remove, elimina il drawing
       final drawing = copy.descendants.firstWhereOrNull((e) => e is XmlElement && e.name.local == 'drawing');
       if (drawing != null) {
         drawing.parent!.children.remove(drawing);
       }
     }
+
     return l;
   }
 
