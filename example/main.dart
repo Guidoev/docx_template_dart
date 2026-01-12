@@ -12,7 +12,7 @@ void main() async {
 
   content
     ..add(TextContent("header", "HEADER", cellColor: "00FF00"))
-    ..add(ImageContent("logo", img, heightPx: 50, widthPx: 200))
+    ..add(ImageContent("logo", img, heightPx: 78, widthPx: 198))
     ..add(TextContent("Cella_1", "MODIFICATO", cellColor: "FFFF00"))
     ..add(TextContent("Cella_1_bis", "FORSE", cellColor: "00FF00"))
     ..add(TextContent("Cella_2", "CORRETTAMENTE", cellColor: "FF0000"))
