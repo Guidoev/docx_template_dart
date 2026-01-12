@@ -6,7 +6,7 @@ import 'package:docx_template/docx_template.dart';
 void main() async {
   final f = File("template.docx");
   final docx = await DocxTemplate.fromBytes(await f.readAsBytes());
-  final img = await File("test.jpg").readAsBytes();
+  final img = await File("test.png").readAsBytes();
 
   Content content = Content();
 
