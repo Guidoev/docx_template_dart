@@ -377,7 +377,7 @@ class ImgView extends View<ImageContent?> {
         });
 
         //code injection for changing image size
-        if (c.widthPx != null || c.heightPx != null) {
+        if (c.widthPx != null && c.heightPx != null) {
           _applyImageSize(copy, c);
         }
       }
@@ -408,14 +408,33 @@ class ImgView extends View<ImageContent?> {
     if (inline == null) return;
 
     final extent = inline.children.whereType<XmlElement>().firstWhereOrNull((e) => e.name.local == 'extent');
+    final pic = inline.descendants.whereType<XmlElement>().firstWhereOrNull((e) => e.name.local == 'pic');
+    final frame =
+        inline.descendants.whereType<XmlElement>().firstWhereOrNull((e) => e.name.local == 'cNvGraphicFramePr');
 
-    if (extent == null) return;
+    if (extent == null || pic == null || frame == null) return;
+    final spPr = pic.children.whereType<XmlElement>().firstWhereOrNull((e) => e.name.local == 'spPr');
+    if (spPr == null) return;
+    final ext = spPr.descendants.whereType<XmlElement>().firstWhereOrNull((e) => e.name.local == 'ext');
+    if (ext == null) return;
 
-    if (c.widthPx != null) {
-      extent.setAttribute('cx', pxToEmu(c.widthPx!).toString());
-    }
-    if (c.heightPx != null) {
-      extent.setAttribute('cy', pxToEmu(c.heightPx!).toString());
+    disableAspectRatioLock(frame);
+    ext.setAttribute('cx', pxToEmu(c.widthPx!).toString());
+    ext.setAttribute('cy', pxToEmu(c.widthPx!).toString());
+    extent.setAttribute('cx', pxToEmu(c.widthPx!).toString());
+    extent.setAttribute('cy', pxToEmu(c.heightPx!).toString());
+  }
+
+  void disableAspectRatioLock(XmlElement frame) {
+    final locks =
+        frame.descendants.whereType<XmlElement>().firstWhereOrNull((e) => e.name.local == 'graphicFrameLocks');
+
+    if (locks == null) {
+      frame.children.add(
+        XmlElement(XmlName('a:graphicFrameLocks'), [XmlAttribute(XmlName('noChangeAspect'), '0')]),
+      );
+    } else {
+      locks.removeAttribute('noChangeAspect');
     }
   }
 

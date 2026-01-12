@@ -6,13 +6,13 @@ import 'package:docx_template/docx_template.dart';
 void main() async {
   final f = File("template.docx");
   final docx = await DocxTemplate.fromBytes(await f.readAsBytes());
-  final img = await File("test.jpg").readAsBytes();
+  final img = await File("test.png").readAsBytes();
 
   Content content = Content();
 
   content
     ..add(TextContent("header", "HEADER", cellColor: "00FF00"))
-    ..add(ImageContent("logo", img, heightPx: 50, widthPx: 200))
+    ..add(ImageContent("logo", img, heightPx: 78, widthPx: 198))
     ..add(TextContent("Cella_1", "MODIFICATO", cellColor: "FFFF00"))
     ..add(TextContent("Cella_1_bis", "FORSE", cellColor: "00FF00"))
     ..add(TextContent("Cella_2", "CORRETTAMENTE", cellColor: "FF0000"))
