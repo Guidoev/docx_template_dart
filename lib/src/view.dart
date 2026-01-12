@@ -420,7 +420,7 @@ class ImgView extends View<ImageContent?> {
 
     disableAspectRatioLock(frame);
     ext.setAttribute('cx', pxToEmu(c.widthPx!).toString());
-    ext.setAttribute('cy', pxToEmu(c.widthPx!).toString());
+    ext.setAttribute('cy', pxToEmu(c.heightPx!).toString());
     extent.setAttribute('cx', pxToEmu(c.widthPx!).toString());
     extent.setAttribute('cy', pxToEmu(c.heightPx!).toString());
   }
